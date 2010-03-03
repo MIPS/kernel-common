@@ -44,10 +44,11 @@
 #include <linux/timer.h>
 #include <linux/clk.h>
 
+#include <mach/hardware.h>
+
 #include <asm/io.h>
 #include <asm/irq.h>
 #include <asm/scatterlist.h>
-#include <asm/mach-types.h>
 
 
 #include <asm/types.h>
