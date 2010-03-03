@@ -577,6 +577,14 @@ core-$(CONFIG_TOSHIBA_RBTX4927)	+= arch/mips/txx9/rbtx4927/
 #
 core-$(CONFIG_TOSHIBA_RBTX4938) += arch/mips/txx9/rbtx4938/
 
+#
+# Goldfish
+#
+core-$(CONFIG_MIPS_GOLDFISH)	+= arch/mips/mach-goldfish/
+cflags-$(CONFIG_MIPS_GOLDFISH)	+= -Iinclude/asm-mips/mach-goldfish
+load-$(CONFIG_MIPS_GOLDFISH)	+= 0xffffffff80010000
+all-$(CONFIG_MIPS_GOLDFISH)	:= vmlinux.bin
+
 cflags-y			+= -Iinclude/asm-mips/mach-generic
 drivers-$(CONFIG_PCI)		+= arch/mips/pci/
 
