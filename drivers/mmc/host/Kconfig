@@ -173,7 +173,7 @@ config MMC_TIFM_SD
 
 config MMC_GOLDFISH
 	tristate "goldfish qemu Multimedia Card Interface support"
-	depends on ARCH_GOLDFISH
+	depends on ARCH_GOLDFISH || MIPS_GOLDFISH
 	help
 	  This selects the Goldfish Multimedia card Interface emulation.
 
