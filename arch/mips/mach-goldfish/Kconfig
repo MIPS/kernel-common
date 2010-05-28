@@ -4,6 +4,7 @@ menu "Goldfish Options"
 
 config MACH_GOLDFISH
 	bool "Goldfish (Virtual Platform)"
+	select ARCH_GOLDFISH
 	select BOOT_ELF32
 	select BOOT_RAW
 	select CEVT_R4K
@@ -18,6 +19,8 @@ config MACH_GOLDFISH
 	select SYS_SUPPORTS_BIG_ENDIAN
 	select SYS_SUPPORTS_LITTLE_ENDIAN
 
+config ARCH_GOLDFISH
+	bool
 endmenu
 
 endif
