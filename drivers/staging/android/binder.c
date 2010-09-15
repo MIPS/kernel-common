@@ -492,7 +492,6 @@ static void binder_insert_free_buffer(
 	struct binder_buffer *buffer;
 	size_t buffer_size;
 	size_t new_buffer_size;
-
 	BUG_ON(!new_buffer->free);
 
 	new_buffer_size = binder_buffer_size(proc, new_buffer);
@@ -2735,14 +2734,13 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 		goto err_already_mapped;
 	}
 
-	area = get_vm_area(vma->vm_end - vma->vm_start, VM_IOREMAP);
+	area = get_vm_area(vma->vm_end - vma->vm_start, VM_MAP);
 	if (area == NULL) {
 		ret = -ENOMEM;
 		failure_string = "get_vm_area";
 		goto err_get_vm_area_failed;
 	}
 	proc->buffer = area->addr;
-	proc->user_buffer_offset = vma->vm_start - (uintptr_t)proc->buffer;
 
 #ifdef CONFIG_CPU_CACHE_VIPT
 	if (cache_is_vipt_aliasing()) {
@@ -2752,6 +2750,7 @@ static int binder_mmap(struct file *filp, struct vm_area_struct *vma)
 		}
 	}
 #endif
+	proc->user_buffer_offset = vma->vm_start - (uintptr_t)proc->buffer; 
 	proc->pages = kzalloc(sizeof(proc->pages[0]) * ((vma->vm_end - vma->vm_start) / PAGE_SIZE), GFP_KERNEL);
 	if (proc->pages == NULL) {
 		ret = -ENOMEM;
