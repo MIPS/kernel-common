@@ -32,7 +32,7 @@
 #include <linux/uaccess.h>
 #include <linux/vmalloc.h>
 #include "binder.h"
-
+extern void local_flush_tlb_all(void);
 static DEFINE_MUTEX(binder_lock);
 static HLIST_HEAD(binder_procs);
 static struct binder_node *binder_context_mgr_node;
@@ -654,6 +654,7 @@ err_map_kernel_failed:
 err_alloc_page_failed:
 		;
 	}
+	local_flush_tlb_all();
 err_no_vma:
 	if (mm) {
 		up_write(&mm->mmap_sem);
