@@ -2554,7 +2554,7 @@ static long binder_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	unsigned int size = _IOC_SIZE(cmd);
 	void __user *ubuf = (void __user *)arg;
 
-	/*printk(KERN_INFO "binder_ioctl: %d:%d %x %lx\n", proc->pid, current->pid, cmd, arg);*/
+	//printk(KERN_INFO "binder_ioctl: %d:%d %x %lx\n", proc->pid, current->pid, cmd, arg);
 
 	ret = wait_event_interruptible(binder_user_error_wait, binder_stop_on_user_error < 2);
 	if (ret)
@@ -2957,8 +2957,9 @@ static void binder_deferred_release(struct binder_proc *proc)
 		int i;
 		for (i = 0; i < proc->buffer_size / PAGE_SIZE; i++) {
 			if (proc->pages[i]) {
-				if (binder_debug_mask & BINDER_DEBUG_BUFFER_ALLOC)
-					printk(KERN_INFO "binder_release: %d: page %d at %p not freed\n", proc->pid, i, proc->buffer + i * PAGE_SIZE);
+				void *page_addr = proc->buffer + i * PAGE_SIZE;
+				unmap_kernel_range((unsigned long)page_addr,
+					PAGE_SIZE);
 				__free_page(proc->pages[i]);
 				page_count++;
 			}
