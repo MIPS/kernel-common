@@ -182,6 +182,7 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 		break;
 
 	case lw_op:
+	case lwc1_op:
 		if (!access_ok(VERIFY_READ, addr, 4))
 			goto sigbus;
 
@@ -208,7 +209,14 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 		if (res)
 			goto fault;
 		compute_return_epc(regs);
-		regs->regs[insn.i_format.rt] = value;
+		if (op == lw_op)
+			regs->regs[insn.i_format.rt] = value;
+		else {
+			die_if_kernel("Unaligned FP access in kernel code", regs);
+			lose_fpu(1);	/* Save FPU state state */
+			current->thread.fpu->fpr[insn.f_format.rt] = value;
+			own_fpu(1);	/* Using the FPU again.  */
+		}
 		break;
 
 	case lhu_op:
@@ -369,10 +377,19 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 		break;
 
 	case sw_op:
+	case swc1_op:
 		if (!access_ok(VERIFY_WRITE, addr, 4))
 			goto sigbus;
 
-		value = regs->regs[insn.i_format.rt];
+		if (op == sw_op)
+			value = regs->regs[insn.i_format.rt];
+		else {
+			die_if_kernel("Unaligned FP access in kernel code", regs);
+			lose_fpu(1);	/* Save FPU state state */
+			value = current->thread.fpu->fpr[insn.f_format.rt];
+			own_fpu(1);	/* Using the FPU again.  */
+		}
+
 		__asm__ __volatile__ (
 #ifdef __BIG_ENDIAN
 			"1:\tswl\t%1,(%2)\n"
@@ -442,9 +459,7 @@ static void emulate_load_store_insn(struct pt_regs *regs,
 		/* Cannot handle 64-bit instructions in 32-bit kernel */
 		goto sigill;
 
-	case lwc1_op:
 	case ldc1_op:
-	case swc1_op:
 	case sdc1_op:
 		/*
 		 * I herewith declare: this does not happen.  So send SIGBUS.
